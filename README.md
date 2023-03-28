@@ -15,7 +15,7 @@ To host, install [Nodejs and npm](https://nodejs.org/en).
 Next install the dependencies with:
 
 ```sh
-npm ci
+npm install .
 ```
 
 Assign the environment variable `PORT` to the desired port number, then launch with:
