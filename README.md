@@ -1,6 +1,6 @@
 # Picross W
 
-A Multiplayer Cooperative Web Picross game made with Vue and Web assembly; hosted with Express.
+A Multiplayer Cooperative Web Picross game made with Vue and Web Assembly; hosted with Express.
 
 Created as my Senior Project at Utah Tech University.
 
@@ -10,7 +10,9 @@ The Web Assembly portion of the project in `/public/out` can be built from [this
 
 ## Hosting
 
-To host, install the dependencies with:
+To host, install [Nodejs and npm](https://nodejs.org/en).
+
+Next install the dependencies with:
 
 ```sh
 npm ci
