@@ -18,7 +18,7 @@ Next install the dependencies with:
 npm ci
 ```
 
-Assign the environment variable `PICROSS_PORT` to the desired port number, then launch with:
+Assign the environment variable `PORT` to the desired port number, then launch with:
 
 ```sh
 node index.js

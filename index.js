@@ -9,7 +9,7 @@ const path = require("path");
 const { v4: uuid } = require("uuid");
 
 const app = express()
-const port = process.env.PICROSS_PORT || 8080
+const port = process.env.PORT || 8080
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }))
