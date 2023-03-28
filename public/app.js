@@ -1,7 +1,8 @@
 import init, { send_wasm, recv_wasm } from "./out/picross_w.js";
 init();
 
-const WS_ROOT = "ws://localhost:8080"
+//const WS_ROOT = "ws://localhost:8080"
+const WS_ROOT = "ws://picross-w.onrender.com:10000"
 
 var app = new Vue({
     el: '#app',
