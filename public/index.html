@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <div id="wrapper" v-if="pageCounter != 0">
+            <div id="WelcomePage" v-if="pageCounter == 1">
+
+                <h1>Hello</h1>
+                <div id="WelcomeLogo"></div>
+
+                <div>
+                    <input type="text" placeholder="Player Name" v-model="playerName" maxlength="16">
+                    <input type="text" placeholder="Room Code" v-model="roomCode" maxlength="16">
+                    <button v-on:click="welcomeNameInput">continue</button>
+                </div>
+
+            </div>
+            <div id="PuzzleSelectPage" v-if="pageCounter == 2">
+                <h2>Welcome {{playerName}}</h2>
+
+                <h1>Puzzle Select</h1>
+                <div id="PuzzleSelectionGroup">
+                    <div class="PuzzleSelection" v-on:click="easyRandom">
+                        <h3>Easy Random</h3>
+                    </div>
+                    <div class="PuzzleSelection" v-on:click="normalRandom">
+                        <h3>Normal Random</h3>
+                    </div>
+                    <div class="PuzzleSelection" v-on:click="hardRandom">
+                        <h3>Hard Random</h3>
+                    </div>
+                </div>
+            </div>
+            <div id="GamePage" v-if="pageCounter == 3">
+            </div>
+        </div>
+
+        <canvas id="bevy-canvas" oncontextmenu="return false;" id="bevy-canvas" tabIndex="0" alt="app" cursor="auto"
+            :style="{'z-index': bevyZIndex, opacity: bevyOpacity}">Your browser does not support this app.</canvas>
+
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script script type="module" src="app.js"></script>
+
+</html>
