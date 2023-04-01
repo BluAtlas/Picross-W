@@ -66,21 +66,27 @@ var app = new Vue({
                 var message = JSON.parse(event.data);
                 var action = message.action;
                 var data = message.data;
+                let x = null;
                 switch (action) {
                     case 'new_board':
+                        console.log("new_board");
                         send_wasm("j", data);
                         this.showPicross();
                         setInterval(this.listenSocket, 5);
+                        x = setInterval(() => { this.listenSocket(x) }, 5);
                         break;
                     case "new_room":
+                        console.log("new_room");
                         this.pageCounter += 1;
                         break;
                     case "join_room":
+                        console.log("join_room");
                         send_wasm("j", data);
                         this.showPicross();
-                        setInterval(this.listenSocket, 5);
+                        x = setInterval(() => { this.listenSocket(x) }, 5);
                         break;
                     case "board_update":
+                        console.log("board_update");
                         this.pendingUpdates -= message.updates;
                         if (this.pendingUpdates == 0) {
                             send_wasm("u", data);
@@ -91,6 +97,7 @@ var app = new Vue({
                         this.bevyZIndex = -1;
                         this.bevyOpacity = 0.5;
                         this.boardTitle = message.title;
+                        this.pendingUpdates = 0;
                         this.socket.onclose = function () { };
                         this.socket.close();
                         send_wasm("u", data);
@@ -114,25 +121,29 @@ var app = new Vue({
                 this.socket.send(JSON.stringify(message));
             }
         },
-        listenSocket: async function () {
-            var string = recv_wasm();
-            if (string != "") {
-                var strings = string.split("SPLIT");
-                var command = strings[0];
-                var data = strings[1];
-                switch (command) {
-                    case "c":
-                        // send cell update websocket
-                        this.pendingUpdates += 1;
-                        var message = {
-                            action: "cell_update",
-                            data: data
-                        }
-                        this.socket.send(JSON.stringify(message));
-                        break;
-                    default:
-                        break;
+        listenSocket: async function (x) {
+            if (this.socket !== null) {
+                var string = recv_wasm();
+                if (string != "") {
+                    var strings = string.split("SPLIT");
+                    var command = strings[0];
+                    var data = strings[1];
+                    switch (command) {
+                        case "c":
+                            // send cell update websocket
+                            this.pendingUpdates += 1;
+                            var message = {
+                                action: "cell_update",
+                                data: data
+                            }
+                            this.socket.send(JSON.stringify(message));
+                            break;
+                        default:
+                            break;
+                    }
                 }
+            } else {
+                clearInterval(x);
             }
         }
     },
