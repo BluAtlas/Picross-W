@@ -9,7 +9,6 @@ var app = new Vue({
     data: {
         socket: null,
         pageCounter: 1,
-        playerName: "",
         canvasWidth: "1px",
         bevyZIndex: -1,
         bevyOpacity: 0.2,

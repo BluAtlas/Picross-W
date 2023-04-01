@@ -17,14 +17,14 @@
                 <div id="WelcomeLogo"></div>
 
                 <div>
-                    <input type="text" placeholder="Player Name" v-model="playerName" maxlength="16">
+                    <!--input type="text" placeholder="Player Name" v-model="playerName" maxlength="16"-->
                     <input type="text" placeholder="Room Code" v-model="roomCode" maxlength="16">
                     <button v-on:click="welcomeNameInput">continue</button>
                 </div>
 
             </div>
             <div id="PuzzleSelectPage" v-if="pageCounter == 2">
-                <h2>Welcome {{playerName}}</h2>
+                <h2>Welcome</h2>
 
                 <h1>Puzzle Select</h1>
                 <div id="PuzzleSelectionGroup">
