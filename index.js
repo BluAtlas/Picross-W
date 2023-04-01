@@ -1,22 +1,23 @@
-
 const ROOM_UPDATE_INTERVAL = 250; // Delay to refresh clients in milliseconds
 
-const express = require('express')
-const WebSocket = require('ws')
-const cors = require('cors')
+const express = require('express');
+const WebSocket = require('ws');
+const cors = require('cors');
 const fs = require("fs");
 const path = require("path");
+const favicon = require('serve-favicon');
 const { v4: uuid } = require("uuid");
 
-const app = express()
-const port = process.env.PORT || 8080
+const app = express();
+const port = process.env.PORT || 8080;
 
-app.use(express.static('public'))
-app.use(express.urlencoded({ extended: false }))
-app.use(cors())
+app.use(express.static('public'));
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+app.use(favicon(path.join(__dirname, "/public/favicon.ico")));
 
 var server = app.listen(port, () => {
-    console.log(`Server live on port: ${port}`)
+    console.log(`Server live on port: ${port}`);
 })
 
 const wss = new WebSocket.Server({ server });
@@ -34,7 +35,7 @@ wss.on('connection', function connection(client) {
     console.log("(" + client.uuid + ")", "Connection created")
 
     client.on('message', (event) => {
-        let message = JSON.parse(event)
+        let message = JSON.parse(event);
         let data = message.data;
         let action = message.action;
         if (action) {
@@ -64,7 +65,7 @@ wss.on('connection', function connection(client) {
                 } else { // create new room
                     console.log("(" + client.uuid + ")", "Creating room [" + room_code + "]");
 
-                    const room = { board: "", goal: "", cells: [], clients: [client.uuid] };
+                    const room = { title: "", board: "", goal: "", cells: [], clients: [client.uuid] };
                     ROOM_MAP.set(room_code, room);
 
                     let response = {
@@ -102,6 +103,7 @@ wss.on('connection', function connection(client) {
                             let x = getRandomBoard("easy");
                             room.board = x[0];
                             room.goal = x[1];
+                            room.title = x[2];
                             board_len = 25;
                             break;
                         }
@@ -109,6 +111,7 @@ wss.on('connection', function connection(client) {
                             let x = getRandomBoard("normal");
                             room.board = x[0];
                             room.goal = x[1];
+                            room.title = x[2];
                             board_len = 100;
                             break;
                         }
@@ -116,6 +119,7 @@ wss.on('connection', function connection(client) {
                             let x = getRandomBoard("hard");
                             room.board = x[0];
                             room.goal = x[1];
+                            room.title = x[2];
                             board_len = 225;
                             break;
                         }
@@ -124,7 +128,7 @@ wss.on('connection', function connection(client) {
                             let x = getRandomBoard("normal");
                             room.board = x[0];
                             room.goal = x[1];
-                            board_len = 100;
+                            room.title = x[2];
                             board_len = 100;
                             break;
                         }
@@ -188,7 +192,8 @@ function serveRoom(room_code, x) {
         } else { // room goal met
             response = {
                 action: "board_complete",
-                data: room.cells.join("")
+                data: room.cells.join(""),
+                title: room.title
             }
             console.log("Victory for room [" + room_code + "]");
             for (let i = 0; i < room.clients.length; i++) {
@@ -236,7 +241,8 @@ function getRandomBoard(difficulty) {
     let file = files[index];
 
     return [fs.readFileSync("./picross_boards/" + difficulty + "/" + file).toString('utf-8'),
-    fs.readFileSync("./picross_boards/" + difficulty + "_goals/" + file + ".goal").toString('utf-8')];
+    fs.readFileSync("./picross_boards/" + difficulty + "_goals/" + file + ".goal").toString('utf-8'),
+    file.substring(0, file.length - 4)];
 }
 
 function checkBoardGoal(cells, goal) {

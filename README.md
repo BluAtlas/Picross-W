@@ -1,8 +1,12 @@
 # Picross W
 
+
 A Multiplayer Cooperative Web Picross game made with Vue and Web Assembly; hosted with Express.
 
+A live version can be played at [https://picross-w.onrender.com/](https://picross-w.onrender.com/)
+
 Created as my Senior Project at Utah Tech University.
+
 
 ## Building
 

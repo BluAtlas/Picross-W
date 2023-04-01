@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="icon" href="favicon.ico?v=1.1">
 </head>
 
 <body>
@@ -38,12 +39,9 @@
                 </div>
             </div>
             <div id="WinPage" v-if="pageCounter == 3">
-                <h1>Puzzle Solved</h1>
-                <h2>Well Done</h2>
-                <div></div>
+                <h1>Well Done!</h1>
+                <h2>Puzzle <span style="color:rgb(0, 255, 255)">{{boardTitle}}</span> Solved</h2>
                 <button onClick="window.location.reload();">Back to Menu</button>
-                <div></div>
-                <div></div>
             </div>
         </div>
 
@@ -52,7 +50,7 @@
 
     </div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 <script script type="module" src="app.js"></script>
 
 </html>

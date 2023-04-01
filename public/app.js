@@ -14,7 +14,8 @@ var app = new Vue({
         bevyZIndex: -1,
         bevyOpacity: 0.2,
         roomCode: "",
-        pendingUpdates: 0
+        pendingUpdates: 0,
+        boardTitle: ""
     },
     methods: {
         welcomeNameInput: function () {
@@ -79,6 +80,7 @@ var app = new Vue({
                         this.pageCounter = 3;
                         this.bevyZIndex = -1;
                         this.bevyOpacity = 0.2;
+                        this.boardTitle = message.title;
                         console.log("board finished")
                         send_wasm("u", data);
                         break;
