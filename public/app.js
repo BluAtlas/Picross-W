@@ -18,8 +18,18 @@ var app = new Vue({
     },
     methods: {
         welcomeNameInput: function () {
+            if (this.socket !== null) {
+                if (this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        action: "join_room",
+                        data: this.roomCode
+                    }));
+                    return;
+                } else {
+                    this.socket = null;
+                }
+            }
             this.connectSocket();
-
         },
         easyRandom: function () {
             this.startGame("e");
@@ -42,6 +52,11 @@ var app = new Vue({
             this.bevyZIndex = 0;
             this.bevyOpacity = 1;
         },
+        showMenu: function () {
+            this.pageCounter = 1;
+            this.bevyZIndex = -1;
+            this.bevyOpacity = 0.2;
+        },
         connectSocket: function () {
             // create websocket
             this.socket = new WebSocket(WS_ROOT);
@@ -56,7 +71,6 @@ var app = new Vue({
                         send_wasm("j", data);
                         this.showPicross();
                         setInterval(this.listenSocket, 5);
-                        console.log("socket listening");
                         break;
                     case "new_room":
                         this.pageCounter += 1;
@@ -65,11 +79,8 @@ var app = new Vue({
                         send_wasm("j", data);
                         this.showPicross();
                         setInterval(this.listenSocket, 5);
-                        console.log("socket listening");
                         break;
                     case "board_update":
-                        // if no pending updates
-                        // TODO remove x amount of pending updates, however many server says to
                         this.pendingUpdates -= message.updates;
                         if (this.pendingUpdates == 0) {
                             send_wasm("u", data);
@@ -78,9 +89,10 @@ var app = new Vue({
                     case "board_complete":
                         this.pageCounter = 3;
                         this.bevyZIndex = -1;
-                        this.bevyOpacity = 0.2;
+                        this.bevyOpacity = 0.5;
                         this.boardTitle = message.title;
-                        console.log("board finished")
+                        this.socket.onclose = function () { };
+                        this.socket.close();
                         send_wasm("u", data);
                         break;
                     default:
@@ -111,7 +123,6 @@ var app = new Vue({
                 switch (command) {
                     case "c":
                         // send cell update websocket
-                        // TODO add one pending updates to counter on server and local
                         this.pendingUpdates += 1;
                         var message = {
                             action: "cell_update",

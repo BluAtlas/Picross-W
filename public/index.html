@@ -42,7 +42,7 @@
             <div id="WinPage" v-if="pageCounter == 3">
                 <h1>Well Done!</h1>
                 <h2>Puzzle <span style="color:rgb(0, 255, 255)">{{boardTitle}}</span> Solved</h2>
-                <button onClick="window.location.reload();">Back to Menu</button>
+                <button v-on:click="showMenu">Back to Menu</button>
             </div>
         </div>
 
