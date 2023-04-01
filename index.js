@@ -199,6 +199,8 @@ function serveRoom(room_code, x) {
                     }
                 })
             }
+            room.goal = "";
+            room.cells = [];
             clearInterval(x);
         };
     } else {
