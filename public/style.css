@@ -81,6 +81,10 @@ p {
     text-align: center;
 }
 
+.PuzzleSelection {
+    border-style: solid;
+}
+
 /* GamePage */
 
 #GamePage {
@@ -88,8 +92,16 @@ p {
     width: 100%;
 }
 
-.PuzzleSelection {
-    border-style: solid;
+/* WinPage */
+
+#WinPage {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 80%;
+    grid-template-rows: auto;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 @keyframes gradient {

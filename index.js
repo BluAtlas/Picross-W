@@ -26,9 +26,12 @@ const CLIENT_MAP = new Map();   // CLIENT_UUID -> ROOM_CODE
 
 
 wss.on('connection', function connection(client) {
-    console.log("Connection created")
 
     client.uuid = uuid();
+    client.locked = false;
+    client.pending_updates = 0;
+
+    console.log("(" + client.uuid + ")", "Connection created")
 
     client.on('message', (event) => {
         let message = JSON.parse(event)
@@ -38,19 +41,28 @@ wss.on('connection', function connection(client) {
             if (action == "join_room") {
                 let room_code = data;
                 if (ROOM_MAP.has(room_code)) { // join existing room
-                    console.log("Joining room:", room_code);
 
                     let room = ROOM_MAP.get(room_code);
                     room.clients.push(client.uuid);
 
-                    let response = {
-                        action: "join_room",
-                        data: room.board + "SPLIT" + room.cells
-                    }
-                    client.send(JSON.stringify(response));
+                    // room not started yet, send them to difficulty select screen
+                    if (room.goal == "") {
+                        console.log("(" + client.uuid + ")", "Joining pending room [" + room_code + "]");
+                        let response = {
+                            action: "new_room"
+                        }
+                        client.send(JSON.stringify(response));
 
+                    } else { // room has started
+                        console.log("(" + client.uuid + ")", "Joining room [" + room_code + "]");
+                        let response = {
+                            action: "join_room",
+                            data: room.board + "SPLIT" + room.cells
+                        }
+                        client.send(JSON.stringify(response));
+                    }
                 } else { // create new room
-                    console.log("Creating room:", room_code);
+                    console.log("(" + client.uuid + ")", "Creating room [" + room_code + "]");
 
                     const room = { board: "", goal: "", cells: [], clients: [client.uuid] };
                     ROOM_MAP.set(room_code, room);
@@ -66,6 +78,14 @@ wss.on('connection', function connection(client) {
             } else if (action == "cell_update") {
                 let room_code = CLIENT_MAP.get(client.uuid);
                 let room = ROOM_MAP.get(room_code);
+                while (client.locked) {
+                    // do nothing until unlocked
+                }
+                client.locked = true; // lock client, do stuff, unlock.
+
+                client.pending_updates += 1;
+
+                client.locked = false;
 
                 let values = data.split(",");
                 let index = parseInt(values[0]);
@@ -75,58 +95,66 @@ wss.on('connection', function connection(client) {
                 let board_len;
                 let room_code = CLIENT_MAP.get(client.uuid);
                 let room = ROOM_MAP.get(room_code);
+                if (room.goal == "") { // if room not already started
 
-                switch (data) {
-                    case "e": {
-                        let x = getRandomBoard("easy");
-                        room.board = x[0];
-                        room.goal = x[1];
-                        board_len = 25;
-                        break;
+                    switch (data) {
+                        case "e": {
+                            let x = getRandomBoard("easy");
+                            room.board = x[0];
+                            room.goal = x[1];
+                            board_len = 25;
+                            break;
+                        }
+                        case "n": {
+                            let x = getRandomBoard("normal");
+                            room.board = x[0];
+                            room.goal = x[1];
+                            board_len = 100;
+                            break;
+                        }
+                        case "h": {
+                            let x = getRandomBoard("hard");
+                            room.board = x[0];
+                            room.goal = x[1];
+                            board_len = 225;
+                            break;
+                        }
+                        default: {
+                            console.log("Invalid Difficulty: ", data);
+                            let x = getRandomBoard("normal");
+                            room.board = x[0];
+                            room.goal = x[1];
+                            board_len = 100;
+                            board_len = 100;
+                            break;
+                        }
                     }
-                    case "n": {
-                        let x = getRandomBoard("normal");
-                        room.board = x[0];
-                        room.goal = x[1];
-                        board_len = 100;
-                        break;
+
+                    for (let i = 0; i < board_len; i++) {
+                        room.cells.push("0");
                     }
-                    case "h": {
-                        let x = getRandomBoard("hard");
-                        room.board = x[0];
-                        room.goal = x[1];
-                        board_len = 225;
-                        break;
+
+                    let response = {
+                        action: 'new_board',
+                        data: room.board + "SPLIT" + room.cells.join("")
                     }
-                    default: {
-                        console.log("Invalid Difficulty: ", data);
-                        let x = getRandomBoard("normal");
-                        room.board = x[0];
-                        room.goal = x[1];
-                        board_len = 100;
-                        board_len = 100;
-                        break;
+                    // send new_board to all clients in room
+                    for (let i = 0; i < room.clients.length; i++) {
+                        let client_uuid = room.clients[i];
+                        wss.clients.forEach((client) => {
+                            if (client.uuid == client_uuid) {
+                                client.send(JSON.stringify(response));
+                            }
+                        })
                     }
+
+                    // start serving room
+                    console.log("Serving room [" + room_code + "]")
+                    let x = setInterval(function () { serveRoom(room_code, x) }, ROOM_UPDATE_INTERVAL)
                 }
-
-                for (let i = 0; i < board_len; i++) {
-                    room.cells.push("0");
-                }
-
-                let response = {
-                    action: 'new_board',
-                    data: room.board + "SPLIT" + room.cells.join("")
-                }
-
-                console.log("Serving room: ", room_code)
-
-                client.send(JSON.stringify(response));
-
-                // serve clients
-                let x = setInterval(function () { serveRoom(room_code, x) }, ROOM_UPDATE_INTERVAL)
             }
         } else {
-            console.log("Invalid client message, No action");
+            console.log("(" + client.uuid + ")", "Invalid client message, No action");
         }
     })
 
@@ -140,13 +168,19 @@ function serveRoom(room_code, x) {
     if (room !== undefined) {
         let response = {
             action: "board_update",
-            data: room.cells.join("")
+            data: room.cells.join(""),
+            updates: 0
         }
         if (!checkBoardGoal(room.cells.join(""), room.goal)) {
             for (let i = 0; i < room.clients.length; i++) {
                 let client_uuid = room.clients[i];
                 wss.clients.forEach((client) => {
                     if (client.uuid == client_uuid) {
+                        while (client.locked) { } // do nothing until unlocked
+                        client.locked = true;
+                        response.updates = client.pending_updates;
+                        client.pending_updates = 0;
+                        client.locked = false;
                         client.send(JSON.stringify(response));
                     }
                 })
@@ -156,7 +190,7 @@ function serveRoom(room_code, x) {
                 action: "board_complete",
                 data: room.cells.join("")
             }
-            console.log("Room wins:", room_code);
+            console.log("Victory for room [" + room_code + "]");
             for (let i = 0; i < room.clients.length; i++) {
                 let client_uuid = room.clients[i];
                 wss.clients.forEach((client) => {
@@ -169,21 +203,21 @@ function serveRoom(room_code, x) {
         };
     } else {
         clearInterval(x);
-        console.log("Room cleared:", room_code);
+        console.log("Stopped serving room [" + room_code + "]");
     }
 }
 
 function clearClient(client) {
     if (CLIENT_MAP.has(client.uuid)) {
         room_code = CLIENT_MAP.get(client.uuid);
-        console.log("Client disconnected from room:", room_code)
+        console.log("(" + client.uuid + ")", "disconnected from room [" + room_code + "]")
         room = ROOM_MAP.get(room_code);
-        let new_room = { board: room.board, cells: room.cells, clients: room.clients.filter(e => e !== client.uuid) };
+        let new_room = { board: room.board, cells: room.cells, goal: room.goal, clients: room.clients.filter(e => e !== client.uuid) };
         if (new_room.clients.length > 0) {
             ROOM_MAP.set(room_code, new_room);
         } else {
             ROOM_MAP.delete(room_code);
-            console.log("Room deleted:", room_code)
+            console.log("Deleted room [" + room_code + "]")
         }
         CLIENT_MAP.delete(client.uuid);
     }
@@ -205,6 +239,11 @@ function getRandomBoard(difficulty) {
 
 function checkBoardGoal(cells, goal) {
     let result = true;
+    if (cells.length != goal.length) {
+        // should be the same, send true to end this room.
+        console.log("Invalid CheckBoard, cells.length != goal.length")
+        return true;
+    }
     for (let i = 0; i < cells.length; i++) {
         if ((cells[i] == "0" || cells[i] == "X") && (goal[i] == "0" || goal[i] == "X")) {
         } else if (cells[i] == "1" && goal[i] == "1") {

@@ -1,8 +1,8 @@
 import init, { send_wasm, recv_wasm } from "./out/picross_w.js";
 init();
 
-//const WS_ROOT = "ws://localhost:8080"
-const WS_ROOT = "wss://picross-w.onrender.com"
+const WS_ROOT = "ws://localhost:8080"
+//const WS_ROOT = "wss://picross-w.onrender.com"
 
 var app = new Vue({
     el: '#app',
@@ -13,7 +13,8 @@ var app = new Vue({
         canvasWidth: "1px",
         bevyZIndex: -1,
         bevyOpacity: 0.2,
-        roomCode: ""
+        roomCode: "",
+        pendingUpdates: 0
     },
     methods: {
         welcomeNameInput: function () {
@@ -67,9 +68,17 @@ var app = new Vue({
                         console.log("socket listening");
                         break;
                     case "board_update":
-                        send_wasm("u", data);
+                        // if no pending updates
+                        // TODO remove x amount of pending updates, however many server says to
+                        this.pendingUpdates -= message.updates;
+                        if (this.pendingUpdates == 0) {
+                            send_wasm("u", data);
+                        }
                         break;
                     case "board_complete":
+                        this.pageCounter = 3;
+                        this.bevyZIndex = -1;
+                        this.bevyOpacity = 0.2;
                         console.log("board finished")
                         send_wasm("u", data);
                         break;
@@ -101,6 +110,8 @@ var app = new Vue({
                 switch (command) {
                     case "c":
                         // send cell update websocket
+                        // TODO add one pending updates to counter on server and local
+                        this.pendingUpdates += 1;
                         var message = {
                             action: "cell_update",
                             data: data
