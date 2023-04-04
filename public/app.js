@@ -14,10 +14,12 @@ var app = new Vue({
         bevyOpacity: 0.2,
         roomCode: "",
         pendingUpdates: 0,
-        boardTitle: ""
+        boardTitle: "",
+        connectionError: false,
     },
     methods: {
         welcomeNameInput: function () {
+            this.pageCounter = 4;
             if (this.socket !== null) {
                 if (this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
@@ -69,24 +71,20 @@ var app = new Vue({
                 let x = null;
                 switch (action) {
                     case 'new_board':
-                        console.log("new_board");
                         send_wasm("j", data);
                         this.showPicross();
                         setInterval(this.listenSocket, 5);
                         x = setInterval(() => { this.listenSocket(x) }, 5);
                         break;
                     case "new_room":
-                        console.log("new_room");
-                        this.pageCounter += 1;
+                        this.pageCounter = 2;
                         break;
                     case "join_room":
-                        console.log("join_room");
                         send_wasm("j", data);
                         this.showPicross();
                         x = setInterval(() => { this.listenSocket(x) }, 5);
                         break;
                     case "board_update":
-                        console.log("board_update");
                         this.pendingUpdates -= message.updates;
                         if (this.pendingUpdates == 0) {
                             send_wasm("u", data);
@@ -109,10 +107,12 @@ var app = new Vue({
             }
             // on connection lost
             this.socket.onerror = (event) => {
+                this.connectionError = true;
                 this.connectSocket();
             }
 
             this.socket.onopen = () => {
+                this.connectionError = false;
                 var message = {
                     action: "join_room",
                     data: this.roomCode

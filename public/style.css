@@ -1,5 +1,11 @@
+@font-face {
+    font-family: NewRodin;
+    src: url(./assets/fonts/FOT-NewRodin-Pro-DB.otf);
+}
+
 html,
 #app {
+    font-family: NewRodin;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -15,15 +21,6 @@ body {
     background: linear-gradient(-45deg, #a6a6a6, #666666, #262626, #a6a6a6);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
-}
-
-a {
-    text-decoration: none;
-    color: cyan;
-}
-
-p {
-    color: blue;
 }
 
 #wrapper {
@@ -47,43 +44,146 @@ p {
     height: 100%;
     display: grid;
     grid-template-columns: auto;
-    grid-template-rows: 25% 20% 20% 30%;
+    grid-template-rows: 20% 20% 45% 10%;
     justify-content: center;
     align-items: center;
     text-align: center;
 }
 
-#WelcomeLogo {
-    background: black;
-    height: 100px;
-    width: 500px;
+#WelcomePage p {
+    color: white;
+    font-size: x-large;
 }
+
+#WelcomePage div {
+    background-color: rgba(38, 38, 38, .8);
+    border-color: #666666;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    padding-bottom: 2em;
+}
+
+#WelcomeLogo {
+    font-style: italic;
+    font-size: 8em;
+    white-space: nowrap;
+}
+
+#WelcomePage input {
+    color: white;
+    font-family: NewRodin;
+    font-size: large;
+    border-color: #666666;
+    border-style: inset;
+    border-width: 1em;
+    background-color: #262626;
+}
+
+#WelcomePage input[type=text]:focus {
+    outline: 1px solid white;
+}
+
+#WelcomePage button {
+    color: white;
+    background: #666666;
+    border-color: #666666;
+    border-width: 2px;
+    width: 37%;
+    font-size: large;
+    font-family: NewRodin;
+}
+
+/* Connecting Page */
+
+#ConnectingPage {
+    height: 100%;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 100%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
 
 /* Puzzle Select Page */
 
 #PuzzleSelectPage {
     height: 100%;
     display: grid;
-    grid-template-columns: 80%;
-    grid-template-rows: 5% 25% 20% 20% 25%;
+    grid-template-columns: 50%;
+    grid-template-rows: 45% 5% 45%;
+    justify-content: center;
+    align-items: baseline;
+    text-align: center;
+}
+
+#HowToPlay {
+    align-self: last baseline;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 20% 70%;
     justify-content: center;
     align-items: center;
     text-align: center;
+    background-color: rgba(38, 38, 38, .8);
+    border-color: #666666;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    padding-bottom: 2em;
+}
+
+#HowToPlay h1 {
+    margin: .1em;
+}
+
+#HowToPlay p {
+    margin: .1em;
+    color: white;
+    width: 100px;
+}
+
+#ControlsDiv {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
 }
 
 #PuzzleSelectionGroup {
     width: 100%;
     display: grid;
-    grid-template-columns: 33% 33% 33%;
-    grid-template-rows: 50% 50%;
+    grid-template-columns: 75%;
+    grid-template-rows: 20% 25% 25% 25%;
     justify-content: center;
     align-items: center;
     text-align: center;
+    background-color: rgba(38, 38, 38, .8);
+    border-color: #666666;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+
 }
 
-.PuzzleSelection {
-    border-style: solid;
+#PuzzleSelectionGroup h1 {
+    margin: .1em;
+    white-space: nowrap;
 }
+
+#PuzzleSelectionGroup button {
+    width: 100%;
+    height: 100%;
+    white-space: nowrap;
+    color: white;
+    background: #666666;
+    border-color: #666666;
+    border-width: 2px;
+    font-size: large;
+    font-family: NewRodin;
+}
+
 
 /* GamePage */
 
@@ -97,11 +197,35 @@ p {
 #WinPage {
     height: 100%;
     display: grid;
-    grid-template-columns: 80%;
-    grid-template-rows: 10% 10% 10% 70%;
+    grid-template-columns: 50%;
+    grid-template-rows: 5em 5em 4em;
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+
+#WinPage h1 {
+    font-style: italic;
+    font-size: 4em;
+    white-space: nowrap;
+}
+
+#WinPage h2 {
+    background-color: rgba(38, 38, 38, .8);
+    border-color: #666666;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+
+}
+
+#WinPage button {
+    color: white;
+    background: #666666;
+    border-color: #666666;
+    border-width: 2px;
+    font-size: large;
+    font-family: NewRodin;
 }
 
 @keyframes gradient {

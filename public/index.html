@@ -13,30 +13,54 @@
         <div id="wrapper" v-if="pageCounter != 0">
             <div id="WelcomePage" v-if="pageCounter == 1">
 
-                <h1>(SITE IS WORK IN PROGRESS)</h1>
-                <div id="WelcomeLogo"></div>
+                <h1>Welcome To</h1>
+
+                <h1 id="WelcomeLogo">PICROSS W</h1>
 
                 <div>
-                    <!--input type="text" placeholder="Player Name" v-model="playerName" maxlength="16"-->
+                    <p>Enter a room code to join a multiplayer session:</p>
                     <input type="text" placeholder="Room Code" v-model="roomCode" maxlength="16">
-                    <button v-on:click="welcomeNameInput">continue</button>
+                    <br>
+                    <br>
+                    <button v-on:click="welcomeNameInput">Continue</button>
                 </div>
 
             </div>
+            <div id="ConnectingPage" v-if="pageCounter == 4">
+                <div>
+                    <h1>Connecting, Please wait...</h1>
+                    <p v-if="connectionError" style="color:white;font-size: large;">Server appears to be down at the
+                        moment. Please try again
+                        later.</p>
+                </div>
+            </div>
             <div id="PuzzleSelectPage" v-if="pageCounter == 2">
-                <h2>Welcome</h2>
-
-                <h1>Puzzle Select</h1>
+                <div id="HowToPlay">
+                    <h1>Controls</h1>
+                    <div id="ControlsDiv">
+                        <div>
+                            <img src="img/leftmouse.png" alt="Left Click">
+                            <p>Fill Squares</p>
+                        </div>
+                        <div>
+                            <img src="img/rightmouse.png" alt="Right Click">
+                            <p>Cross Squares</p>
+                        </div>
+                        <div>
+                            <img src="img/tile_filled.png" alt="Top Left Tile">
+                            <p>Switch Modes</p>
+                        </div>
+                    </div>
+                </div>
+                <div></div>
                 <div id="PuzzleSelectionGroup">
-                    <div class="PuzzleSelection" v-on:click="easyRandom">
-                        <h3>Easy Random</h3>
-                    </div>
-                    <div class="PuzzleSelection" v-on:click="normalRandom">
-                        <h3>Normal Random</h3>
-                    </div>
-                    <div class="PuzzleSelection" v-on:click="hardRandom">
-                        <h3>Hard Random</h3>
-                    </div>
+                    <h1>Puzzle Select</h1>
+                    <button v-on:click="easyRandom">Random 5x5 Puzzle</button>
+                    <p></p>
+                    <button v-on:click="normalRandom">Random 10x10 Puzzle</button>
+                    <p></p>
+                    <button v-on:click="hardRandom">Random 15x15 Puzzle</button>
+                    <p></p>
                 </div>
             </div>
             <div id="WinPage" v-if="pageCounter == 3">
