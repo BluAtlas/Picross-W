@@ -93,7 +93,7 @@ var app = new Vue({
                     case "board_complete":
                         this.pageCounter = 3;
                         this.bevyZIndex = -1;
-                        this.bevyOpacity = 0.5;
+                        this.bevyOpacity = 0.7;
                         this.boardTitle = message.title;
                         this.pendingUpdates = 0;
                         this.socket.onclose = function () { };
