@@ -55,12 +55,15 @@
                 <div></div>
                 <div id="PuzzleSelectionGroup">
                     <h1>Puzzle Select</h1>
-                    <button v-on:click="easyRandom">Random 5x5 Puzzle</button>
-                    <p></p>
-                    <button v-on:click="normalRandom">Random 10x10 Puzzle</button>
-                    <p></p>
-                    <button v-on:click="hardRandom">Random 15x15 Puzzle</button>
-                    <p></p>
+                    <div>
+                        <button v-on:click="easyRandom">Random 5x5 Puzzle</button>
+                    </div>
+                    <div>
+                        <button v-on:click="normalRandom">Random 10x10 Puzzle</button>
+                    </div>
+                    <div>
+                        <button v-on:click="hardRandom">Random 15x15 Puzzle</button>
+                    </div>
                 </div>
             </div>
             <div id="WinPage" v-if="pageCounter == 3">
