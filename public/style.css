@@ -80,6 +80,11 @@ body {
     background-color: #262626;
 }
 
+#WelcomePage input[type='text'],
+select:focus {
+    font-size: 18px;
+}
+
 #WelcomePage input[type=text]:focus {
     outline: 1px solid white;
 }
