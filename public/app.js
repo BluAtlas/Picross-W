@@ -102,6 +102,12 @@ var app = new Vue({
                 this.connectSocket();
             }
 
+            this.socket.onclose = (event) => {
+                this.connectionError = true;
+                console.log("Reconnecting after Websocket closure:", event)
+                this.connectSocket();
+            }
+
             this.socket.onopen = () => {
                 this.connectionError = false;
                 var message = {
