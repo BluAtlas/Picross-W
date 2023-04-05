@@ -64,14 +64,17 @@ wss.on('connection', function connection(client) {
                     }
                 } else { // create new room
                     console.log("(" + client.uuid + ")", "Creating room [" + room_code + "]");
-
-                    const room = { title: "", board: "", goal: "", cells: [], clients: [client.uuid] };
+                    const room = {
+                        title: "",
+                        board: "",
+                        goal: "",
+                        milliseconds_empty: 0,
+                        cells: [],
+                        clients: [client.uuid]
+                    };
                     ROOM_MAP.set(room_code, room);
 
-                    let response = {
-                        action: "new_room"
-                    }
-                    client.send(JSON.stringify(response));
+                    client.send(JSON.stringify({ action: "new_room" }));
                 }
                 // whether joining or creating room, assign client_map room code
                 CLIENT_MAP.set(client.uuid, room_code);
@@ -170,45 +173,58 @@ wss.on('connection', function connection(client) {
 function serveRoom(room_code, x) {
     let room = ROOM_MAP.get(room_code);
     if (room !== undefined) {
-        let response = {
-            action: "board_update",
-            data: room.cells.join(""),
-            updates: 0
+        if (room.clients.length <= 0) {
+            room.milliseconds_empty += ROOM_UPDATE_INTERVAL;
+            // check if room has been empty for 10 seconds
+            if (room.milliseconds_empty > 10000) {
+                console.log("Deleted serving empty room [" + room_code + "]");
+                ROOM_MAP.delete(room_code);
+                clearInterval(x);
+            }
+        } else { // if (room.clients.length > 0)
+            room.milliseconds_empty = 0;
+
+            // check room goal
+            if (!checkBoardGoal(room.cells.join(""), room.goal)) {
+                let response = {
+                    action: "board_update",
+                    data: room.cells.join(""),
+                    updates: 0
+                }
+                for (let i = 0; i < room.clients.length; i++) {
+                    let client_uuid = room.clients[i];
+                    wss.clients.forEach((client) => {
+                        if (client.uuid == client_uuid) {
+                            while (client.locked) { } // do nothing until unlocked
+                            client.locked = true;
+                            response.updates = client.pending_updates;
+                            client.pending_updates = 0;
+                            client.locked = false;
+                            client.send(JSON.stringify(response));
+                        }
+                    })
+                }
+            } else { // if room goal met
+                response = {
+                    action: "board_complete",
+                    data: room.cells.join(""),
+                    title: room.title
+                }
+                console.log("Victory for room [" + room_code + "]");
+                for (let i = 0; i < room.clients.length; i++) {
+                    let client_uuid = room.clients[i];
+                    wss.clients.forEach((client) => {
+                        if (client.uuid == client_uuid) {
+                            client.send(JSON.stringify(response));
+                        }
+                    })
+                }
+                room.goal = "";
+                room.cells = [];
+                clearInterval(x);
+            }
         }
-        if (!checkBoardGoal(room.cells.join(""), room.goal)) {
-            for (let i = 0; i < room.clients.length; i++) {
-                let client_uuid = room.clients[i];
-                wss.clients.forEach((client) => {
-                    if (client.uuid == client_uuid) {
-                        while (client.locked) { } // do nothing until unlocked
-                        client.locked = true;
-                        response.updates = client.pending_updates;
-                        client.pending_updates = 0;
-                        client.locked = false;
-                        client.send(JSON.stringify(response));
-                    }
-                })
-            }
-        } else { // room goal met
-            response = {
-                action: "board_complete",
-                data: room.cells.join(""),
-                title: room.title
-            }
-            console.log("Victory for room [" + room_code + "]");
-            for (let i = 0; i < room.clients.length; i++) {
-                let client_uuid = room.clients[i];
-                wss.clients.forEach((client) => {
-                    if (client.uuid == client_uuid) {
-                        client.send(JSON.stringify(response));
-                    }
-                })
-            }
-            room.goal = "";
-            room.cells = [];
-            clearInterval(x);
-        };
-    } else {
+    } else { // if not (room !== undefined)
         clearInterval(x);
         console.log("Stopped serving room [" + room_code + "]");
     }
@@ -219,12 +235,11 @@ function clearClient(client) {
         room_code = CLIENT_MAP.get(client.uuid);
         console.log("(" + client.uuid + ")", "disconnected from room [" + room_code + "]")
         room = ROOM_MAP.get(room_code);
-        let new_room = { board: room.board, cells: room.cells, goal: room.goal, clients: room.clients.filter(e => e !== client.uuid) };
-        if (new_room.clients.length > 0) {
-            ROOM_MAP.set(room_code, new_room);
-        } else {
+        room.clients = room.clients.filter(e => e !== client.uuid);
+        // Delete empty rooms without a goal
+        if (room.clients.length == 0 && room.goal == "") {
+            console.log("Deleted empty room [" + room_code + "]")
             ROOM_MAP.delete(room_code);
-            console.log("Deleted room [" + room_code + "]")
         }
         CLIENT_MAP.delete(client.uuid);
     }

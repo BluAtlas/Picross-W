@@ -20,17 +20,6 @@ var app = new Vue({
     methods: {
         welcomeNameInput: function () {
             this.pageCounter = 4;
-            if (this.socket !== null) {
-                if (this.socket.readyState === WebSocket.OPEN) {
-                    this.socket.send(JSON.stringify({
-                        action: "join_room",
-                        data: this.roomCode
-                    }));
-                    return;
-                } else {
-                    this.socket = null;
-                }
-            }
             this.connectSocket();
         },
         easyRandom: function () {
@@ -98,6 +87,7 @@ var app = new Vue({
                         this.pendingUpdates = 0;
                         this.socket.onclose = function () { };
                         this.socket.close();
+                        this.socket = null;
                         send_wasm("u", data);
                         break;
                     default:
@@ -108,6 +98,7 @@ var app = new Vue({
             // on connection lost
             this.socket.onerror = (event) => {
                 this.connectionError = true;
+                console.log("Reconnecting after Websocket Error:", event)
                 this.connectSocket();
             }
 
@@ -117,7 +108,6 @@ var app = new Vue({
                     action: "join_room",
                     data: this.roomCode
                 }
-
                 this.socket.send(JSON.stringify(message));
             }
         },
