@@ -62,7 +62,6 @@ var app = new Vue({
                     case 'new_board':
                         send_wasm("j", data);
                         this.showPicross();
-                        setInterval(this.listenSocket, 5);
                         x = setInterval(() => { this.listenSocket(x) }, 5);
                         break;
                     case "new_room":
