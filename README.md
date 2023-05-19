@@ -4,7 +4,7 @@ A Multiplayer Cooperative Web Picross game made with Vue and Web Assembly; hoste
 
 ![image](/img.png)
 
-A live version can be played at [https://picross-w.onrender.com/](https://picross-w.onrender.com/)
+A live version can be played at [https://picross-w.onrender.com/](https://picross-w.onrender.com/) (May take a moment to load after long inactivity)
 
 Created as my Senior Project at Utah Tech University.
 
